@@ -12,6 +12,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from Monocle.GhidraBridge.ghidra_bridge import GhidraBridge
 
 class Monocle:
+    token = None
     def _load_model(self, model_name, device):
         """
         Load the pre-trained language model and tokenizer.
@@ -30,7 +31,7 @@ class Monocle:
             bnb_4bit_quant_type="nf4",
             bnb_4bit_use_double_quant=True,
         )
-        model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2", quantization_config=quantization_config)
+        model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2", token=Monocle.token, quantization_config=quantization_config)
         tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="left")
         return model, tokenizer
     
@@ -143,6 +144,7 @@ class Monocle:
             argparse.Namespace: Parsed arguments.
         """
         parser = argparse.ArgumentParser(description="Local Language Model (LLM) - Explain code snippets")
+        parser.add_argument("--token", "-t", required=False, help="The Huggingface token")
         parser.add_argument("--binary", "-b", required=True, help="The Binary to search")
         parser.add_argument("--find", "-f", required=True, help="The component to find")
         return parser.parse_args()
@@ -166,6 +168,8 @@ class Monocle:
         Entry point of the program.
         """
         args = self._get_args()
+        if args.token:
+            Monocle.token = args.token
         console = Console()
         device = "cuda" if torch.cuda.is_available() else "cpu"
         model_name = "mistralai/Mistral-7B-Instruct-v0.1"
