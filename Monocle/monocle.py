@@ -31,8 +31,9 @@ class Monocle:
             bnb_4bit_quant_type="nf4",
             bnb_4bit_use_double_quant=True,
         )
+        print(Monocle.token)
         model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2", token=Monocle.token, quantization_config=quantization_config)
-        tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="left")
+        tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="left", token=Monocle.token)
         return model, tokenizer
     
     def _get_code_from_decom_file(self, path_to_file):
